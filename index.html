@@ -232,6 +232,9 @@
             width: 100%;
             font-size: 14px;
         }
+        select {
+            appearance: auto;
+        }
         .btn {
             background: #0a2540;
             color: white;
@@ -470,9 +473,14 @@
                     <h2>📦 Inventory Management <span class="badge">Editable</span></h2>
                     <p style="color:gray; margin-bottom:15px;">Edit stock quantities directly. Changes save automatically.</p>
                     <div class="card">
-                        <div style="margin-bottom:15px; display:flex; gap:10px; flex-wrap:wrap;">
-                            <input id="new-prod-name" placeholder="New Product Name" style="width:200px;" />
+                        <div style="margin-bottom:15px; display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+                            <input id="new-prod-name" placeholder="Product Name" style="width:200px;" />
                             <input id="new-prod-price" placeholder="Sell Price (GH₵)" type="number" style="width:150px;" />
+                            <select id="new-prod-unit" style="width:120px;">
+                                <option value="Kg">Kg</option>
+                                <option value="Tons">Tons</option>
+                                <option value="Pcs">Pcs</option>
+                            </select>
                             <button class="btn btn-success" onclick="addProduct()">➕ Add Product</button>
                             <button class="btn btn-excel" onclick="exportInventory()">📥 Export to Excel</button>
                         </div>
@@ -804,8 +812,9 @@
         function addProduct() {
             const name = document.getElementById('new-prod-name').value.trim();
             const price = parseFloat(document.getElementById('new-prod-price').value);
+            const unit = document.getElementById('new-prod-unit').value;
             if (!name || !price) return alert('Enter product name and price.');
-            products.push({ id: nextProductId++, name, unit: 'Kg', sellPrice: price, stock: 0 });
+            products.push({ id: nextProductId++, name, unit: unit, sellPrice: price, stock: 0 });
             // Log stock movement
             stockMovements.push({
                 date: new Date().toLocaleString(),
@@ -819,6 +828,8 @@
             saveProducts();
             document.getElementById('new-prod-name').value = '';
             document.getElementById('new-prod-price').value = '';
+            // reset unit dropdown to default
+            document.getElementById('new-prod-unit').value = 'Kg';
             alert('Product added!');
         }
 
@@ -934,7 +945,7 @@
                 products.forEach(p => {
                     const opt = document.createElement('option');
                     opt.value = p.id;
-                    opt.textContent = `${p.name} (Stock: ${p.stock})`;
+                    opt.textContent = `${p.name} (${p.unit}) - Stock: ${p.stock}`;
                     sel.appendChild(opt);
                 });
                 if (currentVal) sel.value = currentVal;
