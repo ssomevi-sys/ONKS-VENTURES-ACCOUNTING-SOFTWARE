@@ -3,12 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ONKS VENTURES - Live Cloud</title>
-    <!-- Load Supabase Library -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
-    </script>
+    <title>ONKS VENTURES - Sales Suite</title>
     <style>
-        /* --- STYLES (Compact but complete) --- */
         * {
             margin: 0;
             padding: 0;
@@ -19,6 +15,8 @@
             background: #f0f2f5;
             height: 100vh;
         }
+
+        /* ---------- LOGIN OVERLAY ---------- */
         #login-overlay {
             position: fixed;
             top: 0;
@@ -87,6 +85,8 @@
             margin-top: 10px;
             text-align: center;
         }
+
+        /* ---------- MAIN APP ---------- */
         #app-container.hidden {
             display: none;
         }
@@ -94,6 +94,8 @@
             display: flex;
             height: 100vh;
         }
+
+        /* SIDEBAR */
         .sidebar {
             width: 230px;
             background: #0a2540;
@@ -168,6 +170,8 @@
         .footer-credit strong {
             color: #8ab4f8;
         }
+
+        /* MAIN CONTENT */
         .main-content {
             flex: 1;
             padding: 30px;
@@ -255,6 +259,9 @@
         .btn-excel {
             background: #217346;
         }
+        .btn-print {
+            background: #0a58ca;
+        }
         .row {
             display: flex;
             gap: 15px;
@@ -271,6 +278,10 @@
             border-radius: 20px;
             font-size: 12px;
             font-weight: normal;
+        }
+        .badge-danger {
+            background: #b22222;
+            color: white;
         }
         .inline-edit {
             background: #fff9e6;
@@ -295,6 +306,8 @@
             font-weight: bold;
             background: #f0f4f8;
         }
+
+        /* ---------- RECEIPT MODAL ---------- */
         #receipt-modal {
             position: fixed;
             top: 0;
@@ -365,6 +378,7 @@
             margin-top: 15px;
             justify-content: center;
         }
+
         @media print {
             body * {
                 visibility: hidden;
@@ -391,7 +405,9 @@
                 display: none !important;
             }
         }
-        @media (max-width:768px) {
+
+        /* ---------- RESPONSIVE ---------- */
+        @media (max-width: 768px) {
             .sidebar {
                 width: 180px;
             }
@@ -409,10 +425,10 @@
 </head>
 <body>
 
-    <!-- LOGIN OVERLAY -->
+    <!-- ==================== LOGIN OVERLAY ==================== -->
     <div id="login-overlay">
         <div class="login-box">
-            <h2>⚙️ ONKS <small>VENTURES (LIVE)</small></h2>
+            <h2>⚙️ ONKS <small>VENTURES</small></h2>
             <label>👤 Username</label>
             <input id="login-username" placeholder="Enter username" value="admin" />
             <label>🔒 Password</label>
@@ -420,13 +436,14 @@
             <button class="btn" onclick="loginUser()">Login</button>
             <div id="login-error" class="login-error"></div>
             <p style="font-size:12px; color:#888; text-align:center; margin-top:12px;">Default: admin / password</p>
-            <p style="font-size:11px; color:#1e7e34; text-align:center; margin-top:8px;">✅ All data is LIVE in the cloud!</p>
         </div>
     </div>
 
-    <!-- MAIN APP -->
+    <!-- ==================== MAIN APP ==================== -->
     <div id="app-container" class="hidden">
         <div class="app-layout">
+
+            <!-- SIDEBAR -->
             <div class="sidebar">
                 <div class="user-info">
                     <div class="name" id="display-name">User</div>
@@ -440,87 +457,102 @@
                 <button onclick="switchTab('adjustments')">📊 Adjustments</button>
                 <button id="users-tab-btn" onclick="switchTab('users')" style="display:none;">👥 Users</button>
                 <button onclick="switchTab('stock')">📈 Stock Handle</button>
-                <div class="footer-credit">Developed by <strong>SOMEFOST SOLUTIONS LIMITED</strong></div>
+                <div class="footer-credit">
+                    Developed by <strong>SOMEFOST SOLUTIONS LIMITED</strong>
+                </div>
             </div>
 
+            <!-- MAIN CONTENT -->
             <div class="main-content">
-                <!-- INVENTORY -->
+
+                <!-- ============ INVENTORY TAB ============ -->
                 <div id="tab-inventory" class="tab-content active">
-                    <h2>📦 Inventory <span class="badge">Live Cloud</span></h2>
+                    <h2>📦 Inventory Management <span class="badge">Editable</span></h2>
+                    <p style="color:gray; margin-bottom:15px;">Edit stock quantities directly. Changes save automatically.</p>
                     <div class="card">
-                        <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:15px;">
-                            <input id="new-prod-name" placeholder="Product Name" style="width:200px;" />
-                            <input id="new-prod-price" placeholder="Price (GH₵)" type="number" style="width:150px;" />
-                            <button class="btn btn-success" onclick="addProduct()">➕ Add</button>
-                            <button class="btn btn-excel" onclick="exportInventory()">📥 Export</button>
+                        <div style="margin-bottom:15px; display:flex; gap:10px; flex-wrap:wrap;">
+                            <input id="new-prod-name" placeholder="New Product Name" style="width:200px;" />
+                            <input id="new-prod-price" placeholder="Sell Price (GH₵)" type="number" style="width:150px;" />
+                            <button class="btn btn-success" onclick="addProduct()">➕ Add Product</button>
+                            <button class="btn btn-excel" onclick="exportInventory()">📥 Export to Excel</button>
                         </div>
-                        <table><thead><tr><th>Product</th><th>Unit</th><th>Sell Price</th><th>Stock</th><th></th></tr></thead><tbody id="inventory-body"></tbody></table>
+                        <table>
+                            <thead><tr><th>Product</th><th>Unit</th><th>Sell Price (GH₵)</th><th>Stock Qty</th><th>Action</th></tr></thead>
+                            <tbody id="inventory-body"></tbody>
+                        </table>
                     </div>
+                    <!-- Stock Alerts -->
                     <div class="card">
-                        <h3>⚠️ Low Stock Alerts</h3>
+                        <h3>⚠️ Low Stock Alerts (Below 10)</h3>
                         <table><thead><tr><th>Product</th><th>Stock</th><th>Status</th></tr></thead><tbody id="stock-alerts-body"></tbody></table>
                     </div>
                 </div>
 
-                <!-- SALES -->
+                <!-- ============ SALES TAB ============ -->
                 <div id="tab-sales" class="tab-content">
                     <h2>🧾 Create Sale</h2>
                     <div class="card">
                         <div class="row">
-                            <div class="col"><label>Customer</label><input id="customer-name" placeholder="Walk-in" /></div>
+                            <div class="col"><label>Customer Name</label><input id="customer-name" placeholder="Walk-in Customer" /></div>
                             <div class="col"><label>Product</label><select id="sale-product"></select></div>
-                            <div class="col"><label>Qty</label><input id="sale-qty" type="number" value="1" /></div>
-                            <div class="col" style="display:flex; align-items:flex-end;"><button class="btn btn-success" onclick="addToCart()">➕ Add</button></div>
+                            <div class="col"><label>Quantity</label><input id="sale-qty" type="number" value="1" /></div>
+                            <div class="col" style="display:flex; align-items:flex-end;"><button class="btn btn-success" onclick="addToCart()">➕ Add to Cart</button></div>
                         </div>
                     </div>
                     <div class="card">
-                        <div class="card-header"><h3>🛒 Cart</h3><button class="btn btn-excel" onclick="exportSales()">📥 Export Sales</button></div>
-                        <table><thead><tr><th>Product</th><th>Qty</th><th>Price</th><th>Total</th><th></th></tr></thead><tbody id="cart-body"></tbody></table>
-                        <button class="btn" style="margin-top:15px;" onclick="completeSale()">✅ Complete Sale & Print</button>
+                        <div class="card-header">
+                            <h3>🛒 Cart</h3>
+                            <button class="btn btn-excel" onclick="exportSales()">📥 Export My Sales to Excel</button>
+                        </div>
+                        <table><thead><tr><th>Product</th><th>Qty</th><th>Unit Price (GH₵)</th><th>Total (GH₵)</th><th></th></tr></thead><tbody id="cart-body"></tbody></table>
+                        <button class="btn" style="margin-top:15px;" onclick="completeSale()">✅ Complete Sale & Print Receipt</button>
                     </div>
                     <div class="card">
-                        <div class="card-header"><h3>📜 Sales History</h3><span id="sales-filter-info" style="font-size:13px;color:gray;"></span></div>
+                        <div class="card-header">
+                            <h3>📜 Sales History</h3>
+                            <span id="sales-filter-info" style="font-size:13px; color:gray;"></span>
+                        </div>
                         <table><thead><tr><th>Invoice</th><th>Customer</th><th>Total (GH₵)</th><th>Date</th><th>Rep</th></tr></thead><tbody id="sales-history-body"></tbody></table>
                     </div>
                 </div>
 
-                <!-- PRICING -->
+                <!-- ============ PRICE INPUTS (Cost) TAB ============ -->
                 <div id="tab-pricing" class="tab-content">
-                    <h2>💰 Cost Price Inputs</h2>
+                    <h2>💰 Cost Price Inputs (Procurement)</h2>
                     <div class="card">
                         <div class="row">
                             <div class="col"><label>Product</label><select id="pi-product"></select></div>
-                            <div class="col"><label>Cost (GH₵)</label><input id="pi-cost" type="number" /></div>
-                            <div class="col"><label>Notes</label><input id="pi-notes" placeholder="Supplier" /></div>
-                            <div class="col" style="display:flex; align-items:flex-end;"><button class="btn btn-warning" onclick="saveCostPrice()">💾 Record</button></div>
+                            <div class="col"><label>New Cost Price (GH₵)</label><input id="pi-cost" type="number" /></div>
+                            <div class="col"><label>Notes</label><input id="pi-notes" placeholder="Supplier / Batch" /></div>
+                            <div class="col" style="display:flex; align-items:flex-end;"><button class="btn btn-warning" onclick="saveCostPrice()">💾 Record Cost</button></div>
                         </div>
                     </div>
                     <div class="card">
-                        <div class="card-header"><h3>📋 Cost History</h3><button class="btn btn-excel" onclick="exportCosts()">📥 Export</button></div>
-                        <table><thead><tr><th>Product</th><th>Cost</th><th>Date</th><th>Notes</th></tr></thead><tbody id="cost-history-body"></tbody></table>
+                        <div class="card-header"><h3>📋 Cost History</h3><button class="btn btn-excel" onclick="exportCosts()">📥 Export to Excel</button></div>
+                        <table><thead><tr><th>Product</th><th>Cost Price (GH₵)</th><th>Date</th><th>Notes</th></tr></thead><tbody id="cost-history-body"></tbody></table>
                     </div>
                 </div>
 
-                <!-- ADJUSTMENTS -->
+                <!-- ============ ADJUSTMENTS (Selling) TAB ============ -->
                 <div id="tab-adjustments" class="tab-content">
-                    <h2>📊 Price Adjustments</h2>
+                    <h2>📊 Selling Price Adjustments</h2>
                     <div class="card">
                         <div class="row">
                             <div class="col"><label>Product</label><select id="adj-product"></select></div>
-                            <div class="col"><label>New Price (GH₵)</label><input id="adj-price" type="number" /></div>
-                            <div class="col"><label>Reason</label><input id="adj-reason" placeholder="Market shift" /></div>
-                            <div class="col" style="display:flex; align-items:flex-end;"><button class="btn btn-danger" onclick="saveAdjustment()">📈 Adjust</button></div>
+                            <div class="col"><label>New Selling Price (GH₵)</label><input id="adj-price" type="number" /></div>
+                            <div class="col"><label>Reason</label><input id="adj-reason" placeholder="e.g., Market shift" /></div>
+                            <div class="col" style="display:flex; align-items:flex-end;"><button class="btn btn-danger" onclick="saveAdjustment()">📈 Adjust Price</button></div>
                         </div>
                     </div>
                     <div class="card">
-                        <div class="card-header"><h3>📋 Adjustment History</h3><button class="btn btn-excel" onclick="exportAdjustments()">📥 Export</button></div>
-                        <table><thead><tr><th>Product</th><th>Old Price</th><th>New Price</th><th>Reason</th><th>Date</th></tr></thead><tbody id="adj-history-body"></tbody></table>
+                        <div class="card-header"><h3>📋 Adjustment History</h3><button class="btn btn-excel" onclick="exportAdjustments()">📥 Export to Excel</button></div>
+                        <table><thead><tr><th>Product</th><th>Old Price (GH₵)</th><th>New Price (GH₵)</th><th>Reason</th><th>Date</th></tr></thead><tbody id="adj-history-body"></tbody></table>
                     </div>
                 </div>
 
-                <!-- USERS -->
+                <!-- ============ USERS TAB (Admin only) ============ -->
                 <div id="tab-users" class="tab-content">
-                    <h2>👥 Users <span class="badge">Admin</span></h2>
+                    <h2>👥 User Management <span class="badge">Admin Only</span></h2>
                     <div class="card">
                         <div class="row">
                             <div class="col"><label>Full Name</label><input id="new-user-name" placeholder="John Doe" /></div>
@@ -531,118 +563,106 @@
                     </div>
                     <div class="card">
                         <h3>📋 Registered Users</h3>
-                        <table><thead><tr><th>Username</th><th>Full Name</th><th>Role</th><th>Created</th><th></th></tr></thead><tbody id="users-table-body"></tbody></table>
+                        <table><thead><tr><th>Username</th><th>Full Name</th><th>Role</th><th>Created</th><th>Action</th></tr></thead><tbody id="users-table-body"></tbody></table>
                     </div>
                 </div>
 
-                <!-- STOCK -->
+                <!-- ============ STOCK HANDLE TAB ============ -->
                 <div id="tab-stock" class="tab-content">
-                    <h2>📈 Stock Handle</h2>
+                    <h2>📈 Stock Handle & Movements</h2>
                     <div class="card">
-                        <div class="card-header"><h3>📊 Stock Summary</h3><button class="btn btn-excel" onclick="exportStockMovements()">📥 Export Movements</button></div>
+                        <div class="card-header">
+                            <h3>📊 Stock Summary</h3>
+                            <button class="btn btn-excel" onclick="exportStockMovements()">📥 Export Movements to Excel</button>
+                        </div>
                         <p><strong>Total Stock Value:</strong> <span id="total-stock-value">GH₵ 0.00</span></p>
-                        <table><thead><tr><th>Date</th><th>Product</th><th>Type</th><th>Change</th><th>New Qty</th><th>User</th></tr></thead><tbody id="stock-movements-body"></tbody></table>
+                        <table><thead><tr><th>Date</th><th>Product</th><th>Type</th><th>Qty Change</th><th>New Qty</th><th>User</th></tr></thead><tbody id="stock-movements-body"></tbody></table>
                     </div>
                 </div>
+
             </div>
         </div>
     </div>
 
-    <!-- RECEIPT MODAL -->
+    <!-- ==================== RECEIPT MODAL ==================== -->
     <div id="receipt-modal">
         <div class="receipt-box">
-            <div class="receipt-content" id="receipt-content"></div>
+            <div class="receipt-content" id="receipt-content">
+                <!-- Dynamically filled -->
+            </div>
             <div class="receipt-actions">
-                <button class="btn btn-print" onclick="printReceipt()">🖨️ Print</button>
+                <button class="btn btn-print" onclick="printReceipt()">🖨️ Print Receipt</button>
                 <button class="btn" onclick="closeReceipt()">Close</button>
             </div>
         </div>
     </div>
 
-    <!-- ========================================================== -->
-    <!-- JAVASCRIPT - FULLY FIXED WITH SAFETY CHECKS              -->
-    <!-- ========================================================== -->
     <script>
-        // ----------------------------------------------------------
-        // 1. CONFIGURE SUPABASE (REPLACE THESE TWO LINES)
-        // ----------------------------------------------------------
-        const SUPABASE_URL = 'https://icrctulujmoifggiqwpz.supabase.co'; // 👈 PASTE YOUR URL HERE
-        const SUPABASE_ANON_KEY = 'sb_publishable_yMJCwEHRbc0Yq3Kf6LFh_g_Km9VAoLB'; // 👈 PASTE YOUR ANON KEY HERE
-
-        // ----------------------------------------------------------
-        // 2. INIT SUPABASE SAFELY (Prevents script from crashing)
-        // ----------------------------------------------------------
-        let supabase = null;
-
-        // Check if the Supabase library loaded successfully
-        if (typeof window.supabase !== 'undefined') {
-            supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-            console.log('✅ Supabase connected successfully!');
-        } else {
-            console.error('❌ Supabase library failed to load. Check internet/CDN.');
-            alert(
-                'ERROR: The app cannot connect to the database. Please check your internet connection and refresh the page.');
+        // ================================================================
+        //  DATA LAYER
+        // ================================================================
+        function getData(key, defaultVal) {
+            const raw = localStorage.getItem(key);
+            return raw ? JSON.parse(raw) : defaultVal;
         }
 
-        // ----------------------------------------------------------
-        // 3. GLOBAL STATE
-        // ----------------------------------------------------------
+        function setData(key, val) {
+            localStorage.setItem(key, JSON.stringify(val));
+        }
+
+        // ---------- USERS ----------
+        let users = getData('onks_users', []);
+        if (users.length === 0) {
+            users.push({ username: 'admin', password: 'password', fullName: 'System Admin', role: 'admin', created: new Date()
+                    .toLocaleString() });
+            setData('onks_users', users);
+        }
         let currentUser = null;
-        let products = [];
-        let sales = [];
-        let costHistory = [];
-        let adjHistory = [];
-        let stockMovements = [];
+
+        // ---------- PRODUCTS ----------
+        let products = getData('onks_products', [
+            { id: 1, name: 'Aluminium Sheet', unit: 'Kg', sellPrice: 1500, stock: 200 },
+            { id: 2, name: 'Aluminium Coil', unit: 'Kg', sellPrice: 1700, stock: 150 },
+            { id: 3, name: 'Aluminium Profile', unit: 'Pcs', sellPrice: 2200, stock: 80 },
+            { id: 4, name: 'Aluminium Foil', unit: 'Roll', sellPrice: 900, stock: 300 },
+            { id: 5, name: 'Aluminium Tubes', unit: 'Pcs', sellPrice: 1800, stock: 120 }
+        ]);
+        let nextProductId = products.length > 0 ? Math.max(...products.map(p => p.id)) + 1 : 1;
+
+        // ---------- SALES ----------
+        let sales = getData('onks_sales', []);
         let cart = [];
-        let nextProductId = 1000;
 
-        // ----------------------------------------------------------
-        // 4. LOGIN FUNCTION (Globally accessible)
-        // ----------------------------------------------------------
-        async function loginUser() {
-            // Safety check: if Supabase didn't load, stop here
-            if (!supabase) {
-                document.getElementById('login-error').textContent = '❌ Database not connected. Refresh the page.';
-                return;
-            }
+        // ---------- COSTS & ADJUSTMENTS ----------
+        let costHistory = getData('onks_cost_history', []);
+        let adjHistory = getData('onks_adj_history', []);
 
+        // ---------- STOCK MOVEMENTS ----------
+        let stockMovements = getData('onks_stock_movements', []);
+
+        // ================================================================
+        //  AUTHENTICATION
+        // ================================================================
+        function loginUser() {
             const username = document.getElementById('login-username').value.trim();
             const password = document.getElementById('login-password').value.trim();
-
-            try {
-                const { data, error } = await supabase
-                    .from('users')
-                    .select('*')
-                    .eq('username', username)
-                    .eq('password', password)
-                    .single();
-
-                if (error || !data) {
-                    document.getElementById('login-error').textContent = '❌ Invalid username or password.';
-                    return;
-                }
-
-                currentUser = data;
-                document.getElementById('login-overlay').classList.add('hidden');
-                document.getElementById('app-container').classList.remove('hidden');
-
-                // Load all cloud data
-                await loadAllData();
-                initApp();
-
-            } catch (err) {
-                document.getElementById('login-error').textContent = '❌ Error connecting to server. Check your keys.';
-                console.error('Login Error:', err);
+            const user = users.find(u => u.username === username && u.password === password);
+            if (!user) {
+                document.getElementById('login-error').textContent = '❌ Invalid username or password.';
+                return;
             }
+            currentUser = user;
+            document.getElementById('login-overlay').classList.add('hidden');
+            document.getElementById('app-container').classList.remove('hidden');
+            initApp();
         }
 
-        // ----------------------------------------------------------
-        // 5. LOGOUT
-        // ----------------------------------------------------------
         function logoutUser() {
             currentUser = null;
             document.getElementById('app-container').classList.add('hidden');
             document.getElementById('login-overlay').classList.remove('hidden');
+            document.getElementById('login-username').value = 'admin';
+            document.getElementById('login-password').value = 'password';
             document.getElementById('login-error').textContent = '';
         }
 
@@ -653,44 +673,18 @@
             }
         });
 
-        // ----------------------------------------------------------
-        // 6. LOAD DATA FROM SUPABASE
-        // ----------------------------------------------------------
-        async function loadAllData() {
-            if (!supabase) return;
-
-            // Load Products
-            let { data: pData } = await supabase.from('products').select('*').order('id');
-            products = pData || [];
-            if (products.length > 0) nextProductId = Math.max(...products.map(p => p.id)) + 1;
-
-            // Load Sales
-            let { data: sData } = await supabase.from('sales').select('*').order('id', { ascending: false });
-            sales = sData || [];
-
-            // Load Cost History
-            let { data: cData } = await supabase.from('cost_history').select('*').order('id', { ascending: false });
-            costHistory = cData || [];
-
-            // Load Adjustments
-            let { data: aData } = await supabase.from('adj_history').select('*').order('id', { ascending: false });
-            adjHistory = aData || [];
-
-            // Load Stock Movements
-            let { data: mData } = await supabase.from('stock_movements').select('*').order('id', { ascending: false });
-            stockMovements = mData || [];
-        }
-
-        // ----------------------------------------------------------
-        // 7. INIT APP
-        // ----------------------------------------------------------
+        // ================================================================
+        //  INIT APP
+        // ================================================================
         function initApp() {
             document.getElementById('display-name').textContent = currentUser.fullName;
             document.getElementById('display-role').textContent = currentUser.role === 'admin' ? '👑 Administrator' :
-                '🛒 Sales Rep';
-            document.getElementById('users-tab-btn').style.display = currentUser.role === 'admin' ? 'block' : 'none';
-            document.getElementById('customer-name').value = 'Walk-in Customer';
+            '🛒 Sales Rep';
 
+            // Show Users tab only for admin
+            document.getElementById('users-tab-btn').style.display = currentUser.role === 'admin' ? 'block' : 'none';
+
+            // Refresh all data
             renderInventory();
             refreshAllDropdowns();
             renderCart();
@@ -701,17 +695,20 @@
             renderStockAlerts();
             renderStockMovements();
             updateStockValue();
+
+            // Set default customer
+            document.getElementById('customer-name').value = 'Walk-in Customer';
+            // Switch to inventory tab by default
             switchTab('inventory');
         }
 
-        // ----------------------------------------------------------
-        // 8. NAVIGATION
-        // ----------------------------------------------------------
+        // ================================================================
+        //  NAVIGATION
+        // ================================================================
         function switchTab(tab) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.sidebar button').forEach(el => el.classList.remove('active'));
             document.getElementById('tab-' + tab).classList.add('active');
-
             document.querySelectorAll('.sidebar button').forEach(btn => {
                 if (btn.textContent.includes('Inventory') && tab === 'inventory') btn.classList.add('active');
                 if (btn.textContent.includes('Sales') && tab === 'sales') btn.classList.add('active');
@@ -720,7 +717,6 @@
                 if (btn.textContent.includes('Users') && tab === 'users') btn.classList.add('active');
                 if (btn.textContent.includes('Stock Handle') && tab === 'stock') btn.classList.add('active');
             });
-
             if (tab === 'inventory') { renderInventory();
                 renderStockAlerts(); }
             if (tab === 'sales') { refreshAllDropdowns();
@@ -735,14 +731,17 @@
                 updateStockValue(); }
         }
 
-        // ----------------------------------------------------------
-        // 9. CSV EXPORT FUNCTIONS
-        // ----------------------------------------------------------
+        // ================================================================
+        //  EXPORT FUNCTIONS (Excel CSV)
+        // ================================================================
         function downloadCSV(data, headers, filename) {
-            if (data.length === 0) return alert('No data.');
+            if (data.length === 0) return alert('No data to export.');
             let csv = headers.join(',') + '\n';
-            data.forEach(row => { csv += row.map(v => `"${v}"`).join(',') + '\n'; });
-            const blob = new Blob([csv], { type: 'text/csv' });
+            data.forEach(row => {
+                const escaped = row.map(val => `"${val}"`);
+                csv += escaped.join(',') + '\n';
+            });
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement('a');
             link.href = URL.createObjectURL(blob);
             link.download = filename + '.csv';
@@ -752,115 +751,147 @@
         }
 
         function exportInventory() {
-            const d = products.map(p => [p.id, p.name, p.unit, p.sellPrice, p.stock]);
-            downloadCSV(d, ['ID', 'Product', 'Unit', 'Sell Price', 'Stock'], 'ONKS_Inventory');
+            const headers = ['ID', 'Product', 'Unit', 'Sell Price (GH₵)', 'Stock'];
+            const data = products.map(p => [p.id, p.name, p.unit, p.sellPrice, p.stock]);
+            downloadCSV(data, headers, 'ONKS_Inventory');
         }
 
         function exportSales() {
-            let filtered = sales;
-            if (currentUser.role === 'rep') filtered = sales.filter(s => s.createdBy === currentUser.username);
-            if (filtered.length === 0) return alert('No sales.');
-            const d = filtered.map(s => [s.invoice, s.customer, s.total, s.date, s.createdBy, s.items]);
-            downloadCSV(d, ['Invoice', 'Customer', 'Total', 'Date', 'Rep', 'Items'], 'ONKS_Sales');
+            let filteredSales = sales;
+            if (currentUser.role === 'rep') {
+                filteredSales = sales.filter(s => s.createdBy === currentUser.username);
+            }
+            if (filteredSales.length === 0) return alert('No sales to export for your account.');
+            const headers = ['Invoice', 'Customer', 'Total (GH₵)', 'Date', 'Rep', 'Items'];
+            const data = filteredSales.map(s => [s.invoice, s.customer, s.total, s.date, s.createdBy || 'admin', s.items ||
+                ''
+            ]);
+            downloadCSV(data, headers, 'ONKS_Sales_Export');
         }
 
         function exportCosts() {
-            if (costHistory.length === 0) return alert('No costs.');
-            const d = costHistory.map(c => [c.productName, c.cost, c.date, c.notes]);
-            downloadCSV(d, ['Product', 'Cost', 'Date', 'Notes'], 'ONKS_Costs');
+            if (costHistory.length === 0) return alert('No cost history.');
+            const headers = ['Product', 'Cost Price (GH₵)', 'Date', 'Notes'];
+            const data = costHistory.map(c => [c.productName, c.cost, c.date, c.notes]);
+            downloadCSV(data, headers, 'ONKS_Cost_History');
         }
 
         function exportAdjustments() {
             if (adjHistory.length === 0) return alert('No adjustments.');
-            const d = adjHistory.map(a => [a.productName, a.oldPrice, a.newPrice, a.reason, a.date]);
-            downloadCSV(d, ['Product', 'Old Price', 'New Price', 'Reason', 'Date'], 'ONKS_Adjustments');
+            const headers = ['Product', 'Old Price (GH₵)', 'New Price (GH₵)', 'Reason', 'Date'];
+            const data = adjHistory.map(a => [a.productName, a.oldPrice, a.newPrice, a.reason, a.date]);
+            downloadCSV(data, headers, 'ONKS_Price_Adjustments');
         }
 
         function exportStockMovements() {
-            if (stockMovements.length === 0) return alert('No movements.');
-            const d = stockMovements.map(m => [m.date, m.product, m.type, m.change, m.newQty, m.user]);
-            downloadCSV(d, ['Date', 'Product', 'Type', 'Change', 'New Qty', 'User'], 'ONKS_Stock_Movements');
+            if (stockMovements.length === 0) return alert('No stock movements.');
+            const headers = ['Date', 'Product', 'Type', 'Qty Change', 'New Qty', 'User'];
+            const data = stockMovements.map(m => [m.date, m.product, m.type, m.change, m.newQty, m.user]);
+            downloadCSV(data, headers, 'ONKS_Stock_Movements');
         }
 
-        // ----------------------------------------------------------
-        // 10. INVENTORY (CRUD)
-        // ----------------------------------------------------------
-        async function addProduct() {
-            if (!supabase) return alert('Database not connected.');
-            const name = document.getElementById('new-prod-name').value.trim();
-            const price = parseFloat(document.getElementById('new-prod-price').value);
-            if (!name || !price) return alert('Enter name and price.');
-            const newId = nextProductId++;
-            const newProduct = { id: newId, name, unit: 'Kg', sellPrice: price, stock: 0 };
-            const { error } = await supabase.from('products').insert([newProduct]);
-            if (error) return alert('Error: ' + error.message);
-            products.push(newProduct);
-            const mov = { date: new Date().toLocaleString(), product: name, type: 'ADDED', change: 0, newQty: 0,
-                user: currentUser.fullName };
-            await supabase.from('stock_movements').insert([mov]);
-            stockMovements.unshift(mov);
+        // ================================================================
+        //  INVENTORY
+        // ================================================================
+        function saveProducts() {
+            setData('onks_products', products);
             renderInventory();
             refreshAllDropdowns();
             renderStockAlerts();
             updateStockValue();
+        }
+
+        function addProduct() {
+            const name = document.getElementById('new-prod-name').value.trim();
+            const price = parseFloat(document.getElementById('new-prod-price').value);
+            if (!name || !price) return alert('Enter product name and price.');
+            products.push({ id: nextProductId++, name, unit: 'Kg', sellPrice: price, stock: 0 });
+            // Log stock movement
+            stockMovements.push({
+                date: new Date().toLocaleString(),
+                product: name,
+                type: 'ADDED (New Product)',
+                change: 0,
+                newQty: 0,
+                user: currentUser.fullName
+            });
+            setData('onks_stock_movements', stockMovements);
+            saveProducts();
             document.getElementById('new-prod-name').value = '';
             document.getElementById('new-prod-price').value = '';
             alert('Product added!');
         }
 
-        async function deleteProduct(id) {
+        function deleteProduct(id) {
             if (!confirm('Delete this product?')) return;
             const p = products.find(x => x.id === id);
-            await supabase.from('products').delete().eq('id', id);
             products = products.filter(p => p.id !== id);
-            renderInventory();
-            refreshAllDropdowns();
-            renderStockAlerts();
-            updateStockValue();
-        }
-
-        async function updateStock(productId, newVal) {
-            const qty = parseFloat(newVal);
-            if (isNaN(qty) || qty < 0) return alert('Invalid.');
-            const product = products.find(p => p.id === productId);
-            if (!product) return;
-            const oldQty = product.stock;
-            await supabase.from('products').update({ stock: qty }).eq('id', productId);
-            product.stock = qty;
-            const mov = { date: new Date().toLocaleString(), product: product.name, type: oldQty < qty ? 'STOCK INCREASE' :
-                    'STOCK DECREASE (Manual)', change: qty - oldQty, newQty: qty, user: currentUser.fullName };
-            await supabase.from('stock_movements').insert([mov]);
-            stockMovements.unshift(mov);
-            renderInventory();
-            renderStockAlerts();
-            updateStockValue();
-            event.target.style.background = '#d4edda';
-            setTimeout(() => event.target.style.background = '#fff9e6', 400);
+            saveProducts();
+            stockMovements.push({
+                date: new Date().toLocaleString(),
+                product: p ? p.name : 'Unknown',
+                type: 'DELETED',
+                change: 0,
+                newQty: 0,
+                user: currentUser.fullName
+            });
+            setData('onks_stock_movements', stockMovements);
         }
 
         function renderInventory() {
             const tbody = document.getElementById('inventory-body');
             tbody.innerHTML = '';
             products.forEach(p => {
-                tbody.innerHTML += `
-                    <tr>
-                        <td><strong>${p.name}</strong></td>
-                        <td>${p.unit}</td>
-                        <td>GH₵ ${p.sellPrice.toFixed(2)}</td>
-                        <td><input type="number" class="inline-edit" value="${p.stock}" onchange="updateStock(${p.id}, this.value)" /></td>
-                        <td><button class="delete-btn" onclick="deleteProduct(${p.id})">🗑️</button></td>
-                    </tr>
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><strong>${p.name}</strong></td>
+                    <td>${p.unit}</td>
+                    <td>GH₵ ${p.sellPrice.toFixed(2)}</td>
+                    <td>
+                        <input type="number" class="inline-edit" value="${p.stock}" 
+                               onchange="updateStock(${p.id}, this.value)" />
+                    </td>
+                    <td><button class="delete-btn" onclick="deleteProduct(${p.id})">🗑️</button></td>
                 `;
+                tbody.appendChild(tr);
             });
+        }
+
+        function updateStock(productId, newVal) {
+            const qty = parseFloat(newVal);
+            if (isNaN(qty) || qty < 0) return alert('Enter a valid number.');
+            const product = products.find(p => p.id === productId);
+            if (product) {
+                const oldQty = product.stock;
+                product.stock = qty;
+                // Log movement
+                stockMovements.push({
+                    date: new Date().toLocaleString(),
+                    product: product.name,
+                    type: oldQty < qty ? 'STOCK INCREASE' : 'STOCK DECREASE (Manual)',
+                    change: qty - oldQty,
+                    newQty: qty,
+                    user: currentUser.fullName
+                });
+                setData('onks_stock_movements', stockMovements);
+                saveProducts();
+                const input = event.target;
+                input.style.background = '#d4edda';
+                setTimeout(() => input.style.background = '#fff9e6', 400);
+            }
         }
 
         function renderStockAlerts() {
             const tbody = document.getElementById('stock-alerts-body');
             tbody.innerHTML = '';
             const low = products.filter(p => p.stock < 10);
-            if (low.length === 0) { tbody.innerHTML = '<tr><td colspan="3">✅ All stocked.</td></tr>'; return; }
-            low.forEach(p => { tbody.innerHTML +=
-                    `<tr><td>${p.name}</td><td class="stock-low">${p.stock}</td><td>⚠️ Reorder</td></tr>`; });
+            if (low.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="3">✅ All products have sufficient stock.</td></tr>';
+                return;
+            }
+            low.forEach(p => {
+                tbody.innerHTML += `<tr><td>${p.name}</td><td class="stock-low">${p.stock}</td><td>⚠️ Reorder needed</td></tr>`;
+            });
         }
 
         function updateStockValue() {
@@ -871,42 +902,55 @@
         function renderStockMovements() {
             const tbody = document.getElementById('stock-movements-body');
             tbody.innerHTML = '';
-            if (stockMovements.length === 0) { tbody.innerHTML = '<tr><td colspan="6">No movements.</td></tr>'; return; }
-            stockMovements.slice(0, 30).forEach(m => {
-                tbody.innerHTML +=
-                    `<tr><td>${m.date}</td><td>${m.product}</td><td>${m.type}</td><td>${m.change}</td><td>${m.newQty}</td><td>${m.user}</td></tr>`;
+            if (stockMovements.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6">No movements logged yet.</td></tr>';
+                return;
+            }
+            const latest = stockMovements.slice(-30).reverse();
+            latest.forEach(m => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${m.date}</td>
+                        <td>${m.product}</td>
+                        <td>${m.type}</td>
+                        <td>${m.change}</td>
+                        <td>${m.newQty}</td>
+                        <td>${m.user}</td>
+                    </tr>
+                `;
             });
         }
 
-        // ----------------------------------------------------------
-        // 11. DROPDOWNS & CART
-        // ----------------------------------------------------------
+        // ================================================================
+        //  SALES
+        // ================================================================
         function refreshAllDropdowns() {
-            ['sale-product', 'pi-product', 'adj-product'].forEach(id => {
+            const ids = ['sale-product', 'pi-product', 'adj-product'];
+            ids.forEach(id => {
                 const sel = document.getElementById(id);
                 if (!sel) return;
-                const curr = sel.value;
+                const currentVal = sel.value;
                 sel.innerHTML = '<option value="">-- Select --</option>';
                 products.forEach(p => {
                     const opt = document.createElement('option');
                     opt.value = p.id;
-                    opt.textContent = `${p.name} (${p.stock})`;
+                    opt.textContent = `${p.name} (Stock: ${p.stock})`;
                     sel.appendChild(opt);
                 });
-                if (curr) sel.value = curr;
+                if (currentVal) sel.value = currentVal;
             });
         }
 
         function addToCart() {
             const pid = parseInt(document.getElementById('sale-product').value);
             const qty = parseFloat(document.getElementById('sale-qty').value);
-            if (!pid || qty <= 0) return alert('Select product and qty.');
+            if (!pid || qty <= 0) return alert('Select product and valid quantity.');
             const product = products.find(p => p.id === pid);
-            if (!product) return alert('Not found.');
-            if (qty > product.stock) return alert(`Only ${product.stock} left.`);
+            if (!product) return alert('Product not found.');
+            if (qty > product.stock) return alert(`Only ${product.stock} left in stock.`);
             const existing = cart.find(item => item.productId === pid);
             if (existing) {
-                if (existing.qty + qty > product.stock) return alert(`Not enough. You have ${existing.qty} in cart.`);
+                if (existing.qty + qty > product.stock) return alert(`Not enough stock. You already have ${existing.qty} in cart.`);
                 existing.qty += qty;
             } else {
                 cart.push({ productId: pid, name: product.name, qty: qty, price: product.sellPrice });
@@ -915,54 +959,73 @@
             document.getElementById('sale-qty').value = 1;
         }
 
-        function removeFromCart(index) { cart.splice(index, 1);
-            renderCart(); }
+        function removeFromCart(index) {
+            cart.splice(index, 1);
+            renderCart();
+        }
 
         function renderCart() {
             const tbody = document.getElementById('cart-body');
             tbody.innerHTML = '';
-            if (cart.length === 0) { tbody.innerHTML = '<tr><td colspan="5">Cart empty</td></tr>'; return; }
-            let grand = 0;
+            if (cart.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5">Cart is empty</td></tr>';
+                return;
+            }
+            let grandTotal = 0;
             cart.forEach((item, idx) => {
-                const line = item.qty * item.price;
-                grand += line;
-                tbody.innerHTML +=
-                    `<tr><td>${item.name}</td><td>${item.qty}</td><td>GH₵ ${item.price.toFixed(2)}</td><td>GH₵ ${line.toFixed(2)}</td><td><button class="delete-btn" onclick="removeFromCart(${idx})">❌</button></td></tr>`;
+                const lineTotal = item.qty * item.price;
+                grandTotal += lineTotal;
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${item.name}</td>
+                        <td>${item.qty}</td>
+                        <td>GH₵ ${item.price.toFixed(2)}</td>
+                        <td>GH₵ ${lineTotal.toFixed(2)}</td>
+                        <td><button class="delete-btn" onclick="removeFromCart(${idx})">❌</button></td>
+                    </tr>
+                `;
             });
-            tbody.innerHTML +=
-                `<tr class="total-row"><td colspan="3">GRAND TOTAL</td><td colspan="2">GH₵ ${grand.toFixed(2)}</td></tr>`;
+            tbody.innerHTML += `<tr class="total-row"><td colspan="3">GRAND TOTAL</td><td colspan="2">GH₵ ${grandTotal.toFixed(2)}</td></tr>`;
         }
 
-        // ----------------------------------------------------------
-        // 12. COMPLETE SALE
-        // ----------------------------------------------------------
-        async function completeSale() {
-            if (!supabase) return alert('Database not connected.');
-            if (cart.length === 0) return alert('Cart empty.');
+        function completeSale() {
+            if (cart.length === 0) return alert('Cart is empty.');
             const customer = document.getElementById('customer-name').value.trim() || 'Walk-in Customer';
             const invoice = 'INV-' + Date.now();
             const date = new Date().toLocaleString();
             let total = 0;
-            const itemsSummary = cart.map(i => `${i.name} x${i.qty}`).join(', ');
 
-            for (let item of cart) {
+            cart.forEach(item => {
                 const product = products.find(p => p.id === item.productId);
                 if (product) {
                     product.stock -= item.qty;
                     total += item.qty * item.price;
-                    await supabase.from('products').update({ stock: product.stock }).eq('id', product.id);
-                    const mov = { date, product: product.name, type: 'SOLD', change: -item.qty, newQty: product.stock,
-                        user: currentUser.fullName };
-                    await supabase.from('stock_movements').insert([mov]);
-                    stockMovements.unshift(mov);
+                    // Log stock movement
+                    stockMovements.push({
+                        date: date,
+                        product: product.name,
+                        type: 'SOLD',
+                        change: -item.qty,
+                        newQty: product.stock,
+                        user: currentUser.fullName
+                    });
                 }
-            }
+            });
 
-            const saleObj = { invoice, customer, total, date, items: itemsSummary, createdBy: currentUser.username };
-            const { error } = await supabase.from('sales').insert([saleObj]);
-            if (error) return alert('Sale error: ' + error.message);
-            sales.unshift(saleObj);
+            const itemsSummary = cart.map(i => `${i.name} x${i.qty}`).join(', ');
+            sales.push({
+                invoice,
+                customer,
+                total,
+                date,
+                items: itemsSummary,
+                createdBy: currentUser.username
+            });
+            setData('onks_sales', sales);
+            setData('onks_stock_movements', stockMovements);
+            saveProducts();
 
+            // Show Receipt
             showReceipt(invoice, customer, cart, total);
 
             cart = [];
@@ -970,162 +1033,213 @@
             renderSalesHistory();
             renderStockMovements();
             updateStockValue();
-            renderInventory();
-            renderStockAlerts();
             document.getElementById('customer-name').value = 'Walk-in Customer';
         }
 
-        // ----------------------------------------------------------
-        // 13. RECEIPT
-        // ----------------------------------------------------------
+        // ================================================================
+        //  RECEIPT
+        // ================================================================
+        let lastReceiptInvoice = '';
+
         function showReceipt(invoice, customer, items, total) {
+            lastReceiptInvoice = invoice;
             let itemsHtml = '';
             items.forEach(item => {
-                itemsHtml +=
-                    `<div class="item-row"><span>${item.name} x ${item.qty}</span><span>GH₵ ${(item.qty * item.price).toFixed(2)}</span></div>`;
+                itemsHtml += `
+                    <div class="item-row">
+                        <span>${item.name} x ${item.qty}</span>
+                        <span>GH₵ ${(item.qty * item.price).toFixed(2)}</span>
+                    </div>
+                `;
             });
-            document.getElementById('receipt-content').innerHTML = `
+            const html = `
                 <h2>⚙️ ONKS VENTURES</h2>
-                <div class="sub">Aluminium Trading Co.<br>Accra, Ghana</div>
-                <div style="display:flex;justify-content:space-between;font-size:12px;border-bottom:1px dashed #aaa;padding-bottom:5px;margin-bottom:5px;">
+                <div class="sub">Aluminium Trading Co.<br>123 Accra Road, Ghana<br>Tel: 024-XXX-XXXX</div>
+                <div style="display:flex; justify-content:space-between; font-size:12px; border-bottom:1px dashed #aaa; padding-bottom:5px; margin-bottom:5px;">
                     <span><strong>Invoice:</strong> ${invoice}</span>
                     <span><strong>Date:</strong> ${new Date().toLocaleString()}</span>
                 </div>
-                <div style="font-size:12px;"><strong>Customer:</strong> ${customer}</div>
-                <div style="font-size:12px;margin-bottom:8px;"><strong>Cashier:</strong> ${currentUser.fullName}</div>
-                <div style="border-top:1px dashed #aaa;padding-top:5px;">${itemsHtml}</div>
+                <div style="font-size:12px; margin-bottom:8px;"><strong>Customer:</strong> ${customer}</div>
+                <div style="font-size:12px; margin-bottom:8px;"><strong>Cashier:</strong> ${currentUser.fullName}</div>
+                <div style="border-top:1px dashed #aaa; padding-top:5px; margin-top:5px;">
+                    ${itemsHtml}
+                </div>
                 <div class="total-line">TOTAL: GH₵ ${total.toFixed(2)}</div>
-                <div class="footer">🚀 SOMEFOST SOLUTIONS LIMITED</div>
+                <div style="display:flex; justify-content:space-between; font-size:12px; margin-top:5px;">
+                    <span>Items: ${items.length}</span>
+                    <span>Thank you!</span>
+                </div>
+                <div class="footer">🚀 Developed by SOMEFOST SOLUTIONS LIMITED</div>
             `;
+            document.getElementById('receipt-content').innerHTML = html;
             document.getElementById('receipt-modal').classList.add('show');
         }
 
-        function printReceipt() { window.print(); }
+        function printReceipt() {
+            window.print();
+        }
 
-        function closeReceipt() { document.getElementById('receipt-modal').classList.remove('show'); }
+        function closeReceipt() {
+            document.getElementById('receipt-modal').classList.remove('show');
+        }
 
-        // ----------------------------------------------------------
-        // 14. SALES HISTORY
-        // ----------------------------------------------------------
+        // ================================================================
+        //  SALES HISTORY
+        // ================================================================
         function renderSalesHistory() {
             const tbody = document.getElementById('sales-history-body');
             tbody.innerHTML = '';
             let filtered = sales;
-            let info = 'All transactions (Admin)';
-            if (currentUser && currentUser.role === 'rep') { filtered = sales.filter(s => s.createdBy === currentUser
-                    .username);
-                info = 'Your sales (Rep)'; }
-            document.getElementById('sales-filter-info').textContent = info;
-            if (filtered.length === 0) { tbody.innerHTML = '<tr><td colspan="5">No sales.</td></tr>'; return; }
-            filtered.slice(0, 30).forEach(s => {
-                tbody.innerHTML +=
-                    `<tr><td><strong>${s.invoice}</strong></td><td>${s.customer}</td><td>GH₵ ${s.total.toFixed(2)}</td><td>${s.date}</td><td>${s.createdBy || 'admin'}</td></tr>`;
+            let infoText = 'Showing all transactions (Admin)';
+            if (currentUser.role === 'rep') {
+                filtered = sales.filter(s => s.createdBy === currentUser.username);
+                infoText = 'Showing your sales only (Rep)';
+            }
+            document.getElementById('sales-filter-info').textContent = infoText;
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5">No sales recorded.</td></tr>';
+                return;
+            }
+            const latest = filtered.slice(-30).reverse();
+            latest.forEach(s => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td><strong>${s.invoice}</strong></td>
+                        <td>${s.customer}</td>
+                        <td>GH₵ ${s.total.toFixed(2)}</td>
+                        <td>${s.date}</td>
+                        <td>${s.createdBy || 'admin'}</td>
+                    </tr>
+                `;
             });
         }
 
-        // ----------------------------------------------------------
-        // 15. COST PRICE
-        // ----------------------------------------------------------
-        async function saveCostPrice() {
-            if (!supabase) return alert('Database not connected.');
+        // ================================================================
+        //  COST PRICE INPUTS
+        // ================================================================
+        function saveCostPrice() {
             const pid = parseInt(document.getElementById('pi-product').value);
             const cost = parseFloat(document.getElementById('pi-cost').value);
             const notes = document.getElementById('pi-notes').value.trim();
-            if (!pid || !cost) return alert('Select product and cost.');
+            if (!pid || !cost) return alert('Select product and enter cost.');
             const product = products.find(p => p.id === pid);
-            const obj = { productName: product ? product.name : 'Unknown', cost, date: new Date().toLocaleString(),
-                notes: notes || '-' };
-            const { error } = await supabase.from('cost_history').insert([obj]);
-            if (error) return alert('Error: ' + error.message);
-            costHistory.unshift(obj);
+            costHistory.push({
+                productName: product ? product.name : 'Unknown',
+                cost: cost,
+                date: new Date().toLocaleString(),
+                notes: notes || '-'
+            });
+            setData('onks_cost_history', costHistory);
             renderCostHistory();
             document.getElementById('pi-cost').value = '';
             document.getElementById('pi-notes').value = '';
-            alert('Cost recorded!');
+            alert('Cost price recorded!');
         }
 
         function renderCostHistory() {
             const tbody = document.getElementById('cost-history-body');
             tbody.innerHTML = '';
-            if (costHistory.length === 0) { tbody.innerHTML = '<tr><td colspan="4">No costs.</td></tr>'; return; }
-            costHistory.slice(0, 20).forEach(item => {
-                tbody.innerHTML +=
-                    `<tr><td>${item.productName}</td><td>GH₵ ${item.cost.toFixed(2)}</td><td>${item.date}</td><td>${item.notes}</td></tr>`;
+            if (costHistory.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4">No cost inputs yet.</td></tr>';
+                return;
+            }
+            const latest = costHistory.slice(-20).reverse();
+            latest.forEach(item => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${item.productName}</td>
+                        <td>GH₵ ${item.cost.toFixed(2)}</td>
+                        <td>${item.date}</td>
+                        <td>${item.notes}</td>
+                    </tr>
+                `;
             });
         }
 
-        // ----------------------------------------------------------
-        // 16. PRICE ADJUSTMENTS
-        // ----------------------------------------------------------
-        async function saveAdjustment() {
-            if (!supabase) return alert('Database not connected.');
+        // ================================================================
+        //  PRICE ADJUSTMENTS (Selling)
+        // ================================================================
+        function saveAdjustment() {
             const pid = parseInt(document.getElementById('adj-product').value);
             const newPrice = parseFloat(document.getElementById('adj-price').value);
             const reason = document.getElementById('adj-reason').value.trim();
-            if (!pid || !newPrice) return alert('Select product and price.');
+            if (!pid || !newPrice) return alert('Select product and enter new price.');
             const product = products.find(p => p.id === pid);
-            if (!product) return alert('Not found.');
+            if (!product) return alert('Product not found.');
             const oldPrice = product.sellPrice;
-            const obj = { productName: product.name, oldPrice, newPrice, reason: reason || 'Manual',
-                date: new Date().toLocaleString() };
-            const { error } = await supabase.from('adj_history').insert([obj]);
-            if (error) return alert('Error: ' + error.message);
-            adjHistory.unshift(obj);
+
+            adjHistory.push({
+                productName: product.name,
+                oldPrice: oldPrice,
+                newPrice: newPrice,
+                reason: reason || 'Manual adjustment',
+                date: new Date().toLocaleString()
+            });
+            setData('onks_adj_history', adjHistory);
+
             product.sellPrice = newPrice;
-            await supabase.from('products').update({ sellPrice: newPrice }).eq('id', product.id);
+            saveProducts();
+
             renderAdjustments();
-            renderInventory();
             document.getElementById('adj-price').value = '';
             document.getElementById('adj-reason').value = '';
-            alert(`Price updated!`);
+            alert(`✅ Price updated from GH₵ ${oldPrice.toFixed(2)} to GH₵ ${newPrice.toFixed(2)}`);
         }
 
         function renderAdjustments() {
             const tbody = document.getElementById('adj-history-body');
             tbody.innerHTML = '';
-            if (adjHistory.length === 0) { tbody.innerHTML = '<tr><td colspan="5">No adjustments.</td></tr>'; return; }
-            adjHistory.slice(0, 20).forEach(item => {
-                tbody.innerHTML +=
-                    `<tr><td>${item.productName}</td><td>GH₵ ${item.oldPrice.toFixed(2)}</td><td>GH₵ ${item.newPrice.toFixed(2)}</td><td>${item.reason}</td><td>${item.date}</td></tr>`;
+            if (adjHistory.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5">No adjustments yet.</td></tr>';
+                return;
+            }
+            const latest = adjHistory.slice(-20).reverse();
+            latest.forEach(item => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${item.productName}</td>
+                        <td>GH₵ ${item.oldPrice.toFixed(2)}</td>
+                        <td>GH₵ ${item.newPrice.toFixed(2)}</td>
+                        <td>${item.reason}</td>
+                        <td>${item.date}</td>
+                    </tr>
+                `;
             });
         }
 
-        // ----------------------------------------------------------
-        // 17. USERS (Admin)
-        // ----------------------------------------------------------
-        async function createUser() {
-            if (!supabase) return alert('Database not connected.');
-            if (currentUser.role !== 'admin') return alert('Admin only.');
+        // ================================================================
+        //  USER MANAGEMENT (Admin Only)
+        // ================================================================
+        function createUser() {
+            if (currentUser.role !== 'admin') return alert('Only Admin can create users.');
             const fullName = document.getElementById('new-user-name').value.trim();
             const username = document.getElementById('new-user-username').value.trim();
             const password = document.getElementById('new-user-password').value.trim();
             if (!fullName || !username || !password) return alert('Fill all fields.');
-            const exists = await supabase.from('users').select('*').eq('username', username).single();
-            if (exists.data) return alert('Username exists.');
-            const obj = { username, password, fullName, role: 'rep', created: new Date().toLocaleString() };
-            const { error } = await supabase.from('users').insert([obj]);
-            if (error) return alert('Error: ' + error.message);
+            if (users.find(u => u.username === username)) return alert('Username already exists.');
+            users.push({ username, password, fullName, role: 'rep', created: new Date().toLocaleString() });
+            setData('onks_users', users);
             renderUsersTable();
             document.getElementById('new-user-name').value = '';
             document.getElementById('new-user-username').value = '';
             document.getElementById('new-user-password').value = '';
-            alert('User created!');
+            alert(`✅ Rep "${fullName}" created successfully!`);
         }
 
-        async function deleteUser(username) {
+        function deleteUser(username) {
             if (currentUser.role !== 'admin') return;
-            if (username === 'admin') return alert('Cannot delete admin.');
-            if (!confirm(`Delete ${username}?`)) return;
-            await supabase.from('users').delete().eq('username', username);
+            if (username === 'admin') return alert('Cannot delete the main admin.');
+            if (!confirm(`Delete user "${username}"?`)) return;
+            users = users.filter(u => u.username !== username);
+            setData('onks_users', users);
             renderUsersTable();
         }
 
-        async function renderUsersTable() {
+        function renderUsersTable() {
             const tbody = document.getElementById('users-table-body');
             tbody.innerHTML = '';
-            const { data } = await supabase.from('users').select('*');
-            if (!data) return;
-            data.forEach(u => {
+            users.forEach(u => {
                 const isAdmin = u.role === 'admin';
                 tbody.innerHTML += `
                     <tr>
@@ -1139,15 +1253,11 @@
             });
         }
 
-        // ----------------------------------------------------------
-        // 18. STARTUP
-        // ----------------------------------------------------------
-        // Make sure the login function is globally accessible
-        window.loginUser = loginUser;
-
-        // Show login screen on load
+        // ================================================================
+        //  AUTO-LOGIN CHECK
+        // ================================================================
         window.onload = function() {
-            console.log('ONKS VENTURES App Loaded.');
+            // If there's a saved session? For simplicity, show login.
             document.getElementById('login-overlay').classList.remove('hidden');
             document.getElementById('app-container').classList.add('hidden');
         };
