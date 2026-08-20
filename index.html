@@ -1,0 +1,1267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ONKS VENTURES - Sales Suite</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+        }
+        body {
+            background: #f0f2f5;
+            height: 100vh;
+        }
+
+        /* ---------- LOGIN OVERLAY ---------- */
+        #login-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(10, 37, 64, 0.95);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            flex-direction: column;
+        }
+        #login-overlay.hidden {
+            display: none;
+        }
+        .login-box {
+            background: white;
+            padding: 40px 35px;
+            border-radius: 16px;
+            width: 360px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+        .login-box h2 {
+            color: #0a2540;
+            margin-bottom: 5px;
+        }
+        .login-box h2 small {
+            display: block;
+            font-size: 13px;
+            font-weight: normal;
+            color: #666;
+            margin-bottom: 20px;
+        }
+        .login-box label {
+            font-weight: 600;
+            display: block;
+            margin: 12px 0 4px;
+            font-size: 13px;
+        }
+        .login-box input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        .login-box .btn {
+            width: 100%;
+            margin-top: 20px;
+            padding: 12px;
+            background: #0a2540;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .login-box .btn:hover {
+            background: #1e3a5f;
+        }
+        .login-error {
+            color: #b22222;
+            font-size: 13px;
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        /* ---------- MAIN APP ---------- */
+        #app-container.hidden {
+            display: none;
+        }
+        .app-layout {
+            display: flex;
+            height: 100vh;
+        }
+
+        /* SIDEBAR */
+        .sidebar {
+            width: 230px;
+            background: #0a2540;
+            color: white;
+            padding: 20px 0;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            box-shadow: 2px 0 8px rgba(0, 0, 0, 0.3);
+        }
+        .sidebar .user-info {
+            padding: 0 20px 15px;
+            border-bottom: 1px solid #1e3a5f;
+            margin-bottom: 10px;
+        }
+        .sidebar .user-info .name {
+            font-weight: bold;
+            font-size: 16px;
+        }
+        .sidebar .user-info .role {
+            font-size: 12px;
+            color: #7a9bcb;
+            text-transform: uppercase;
+        }
+        .sidebar .user-info .logout-btn {
+            background: #b22222;
+            border: none;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+        .sidebar h1 {
+            padding: 0 20px 15px;
+            font-size: 24px;
+            border-bottom: 1px solid #1e3a5f;
+        }
+        .sidebar h1 small {
+            display: block;
+            font-size: 11px;
+            font-weight: normal;
+            color: #7a9bcb;
+        }
+        .sidebar button {
+            background: transparent;
+            border: none;
+            color: #b0c9e8;
+            padding: 14px 20px;
+            text-align: left;
+            font-size: 15px;
+            cursor: pointer;
+            border-left: 4px solid transparent;
+            transition: 0.2s;
+            font-weight: 500;
+        }
+        .sidebar button:hover,
+        .sidebar button.active {
+            background: #1e3a5f;
+            color: white;
+            border-left-color: #f9b234;
+        }
+        .footer-credit {
+            margin-top: auto;
+            padding: 20px;
+            font-size: 11px;
+            color: #5a7a9a;
+            border-top: 1px solid #1e3a5f;
+            text-align: center;
+        }
+        .footer-credit strong {
+            color: #8ab4f8;
+        }
+
+        /* MAIN CONTENT */
+        .main-content {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+        }
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0.4;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+        }
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+        .card h3 {
+            color: #0a2540;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+        th {
+            background: #f0f4f8;
+            text-align: left;
+            padding: 10px;
+            border-bottom: 2px solid #ddd;
+        }
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        input,
+        select {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            width: 100%;
+            font-size: 14px;
+        }
+        .btn {
+            background: #0a2540;
+            color: white;
+            padding: 8px 18px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: 0.2s;
+            margin: 2px;
+        }
+        .btn:hover {
+            opacity: 0.85;
+        }
+        .btn-success {
+            background: #1e7e34;
+        }
+        .btn-warning {
+            background: #b8860b;
+        }
+        .btn-danger {
+            background: #b22222;
+        }
+        .btn-excel {
+            background: #217346;
+        }
+        .btn-print {
+            background: #0a58ca;
+        }
+        .row {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+        .col {
+            flex: 1;
+            min-width: 150px;
+        }
+        .badge {
+            background: #e9ecef;
+            padding: 2px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: normal;
+        }
+        .badge-danger {
+            background: #b22222;
+            color: white;
+        }
+        .inline-edit {
+            background: #fff9e6;
+            border: 1px solid #f9b234;
+            width: 80px;
+            padding: 5px;
+            border-radius: 4px;
+            text-align: center;
+        }
+        .stock-low {
+            color: #b22222;
+            font-weight: bold;
+        }
+        .delete-btn {
+            background: none;
+            border: none;
+            color: #b22222;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .total-row {
+            font-weight: bold;
+            background: #f0f4f8;
+        }
+
+        /* ---------- RECEIPT MODAL ---------- */
+        #receipt-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+        }
+        #receipt-modal.show {
+            display: flex;
+        }
+        .receipt-box {
+            background: white;
+            padding: 30px;
+            width: 400px;
+            max-height: 90vh;
+            overflow-y: auto;
+            border-radius: 8px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+        .receipt-box .receipt-content {
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .receipt-box .receipt-content h2 {
+            text-align: center;
+            font-family: 'Segoe UI', sans-serif;
+            color: #0a2540;
+            margin-bottom: 5px;
+        }
+        .receipt-box .receipt-content .sub {
+            text-align: center;
+            font-size: 12px;
+            color: #555;
+            border-bottom: 1px dashed #aaa;
+            padding-bottom: 10px;
+            margin-bottom: 10px;
+        }
+        .receipt-box .receipt-content .item-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+        }
+        .receipt-box .receipt-content .total-line {
+            border-top: 2px solid #000;
+            margin-top: 10px;
+            padding-top: 10px;
+            font-weight: bold;
+            font-size: 16px;
+            text-align: right;
+        }
+        .receipt-box .receipt-content .footer {
+            text-align: center;
+            font-size: 12px;
+            color: #555;
+            margin-top: 15px;
+            border-top: 1px dashed #aaa;
+            padding-top: 10px;
+        }
+        .receipt-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            justify-content: center;
+        }
+
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            #receipt-modal,
+            #receipt-modal * {
+                visibility: visible;
+            }
+            #receipt-modal {
+                position: absolute;
+                top: 0;
+                left: 0;
+                background: white;
+                display: block !important;
+            }
+            .receipt-box {
+                box-shadow: none !important;
+                padding: 10px !important;
+                width: 100% !important;
+                max-height: none !important;
+            }
+            .receipt-actions,
+            .no-print {
+                display: none !important;
+            }
+        }
+
+        /* ---------- RESPONSIVE ---------- */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 180px;
+            }
+            .main-content {
+                padding: 15px;
+            }
+            .row {
+                flex-direction: column;
+            }
+            .login-box {
+                width: 90%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ==================== LOGIN OVERLAY ==================== -->
+    <div id="login-overlay">
+        <div class="login-box">
+            <h2>⚙️ ONKS <small>VENTURES</small></h2>
+            <label>👤 Username</label>
+            <input id="login-username" placeholder="Enter username" value="admin" />
+            <label>🔒 Password</label>
+            <input id="login-password" type="password" placeholder="Enter password" value="password" />
+            <button class="btn" onclick="loginUser()">Login</button>
+            <div id="login-error" class="login-error"></div>
+            <p style="font-size:12px; color:#888; text-align:center; margin-top:12px;">Default: admin / password</p>
+        </div>
+    </div>
+
+    <!-- ==================== MAIN APP ==================== -->
+    <div id="app-container" class="hidden">
+        <div class="app-layout">
+
+            <!-- SIDEBAR -->
+            <div class="sidebar">
+                <div class="user-info">
+                    <div class="name" id="display-name">User</div>
+                    <div class="role" id="display-role">Admin</div>
+                    <button class="logout-btn" onclick="logoutUser()">🚪 Logout</button>
+                </div>
+                <h1>⚙️ ONKS <small>VENTURES</small></h1>
+                <button class="active" onclick="switchTab('inventory')">📦 Inventory</button>
+                <button onclick="switchTab('sales')">🧾 Sales</button>
+                <button onclick="switchTab('pricing')">💰 Price Inputs</button>
+                <button onclick="switchTab('adjustments')">📊 Adjustments</button>
+                <button id="users-tab-btn" onclick="switchTab('users')" style="display:none;">👥 Users</button>
+                <button onclick="switchTab('stock')">📈 Stock Handle</button>
+                <div class="footer-credit">
+                    Developed by <strong>SOMEFOST SOLUTIONS LIMITED</strong>
+                </div>
+            </div>
+
+            <!-- MAIN CONTENT -->
+            <div class="main-content">
+
+                <!-- ============ INVENTORY TAB ============ -->
+                <div id="tab-inventory" class="tab-content active">
+                    <h2>📦 Inventory Management <span class="badge">Editable</span></h2>
+                    <p style="color:gray; margin-bottom:15px;">Edit stock quantities directly. Changes save automatically.</p>
+                    <div class="card">
+                        <div style="margin-bottom:15px; display:flex; gap:10px; flex-wrap:wrap;">
+                            <input id="new-prod-name" placeholder="New Product Name" style="width:200px;" />
+                            <input id="new-prod-price" placeholder="Sell Price (GH₵)" type="number" style="width:150px;" />
+                            <button class="btn btn-success" onclick="addProduct()">➕ Add Product</button>
+                            <button class="btn btn-excel" onclick="exportInventory()">📥 Export to Excel</button>
+                        </div>
+                        <table>
+                            <thead><tr><th>Product</th><th>Unit</th><th>Sell Price (GH₵)</th><th>Stock Qty</th><th>Action</th></tr></thead>
+                            <tbody id="inventory-body"></tbody>
+                        </table>
+                    </div>
+                    <!-- Stock Alerts -->
+                    <div class="card">
+                        <h3>⚠️ Low Stock Alerts (Below 10)</h3>
+                        <table><thead><tr><th>Product</th><th>Stock</th><th>Status</th></tr></thead><tbody id="stock-alerts-body"></tbody></table>
+                    </div>
+                </div>
+
+                <!-- ============ SALES TAB ============ -->
+                <div id="tab-sales" class="tab-content">
+                    <h2>🧾 Create Sale</h2>
+                    <div class="card">
+                        <div class="row">
+                            <div class="col"><label>Customer Name</label><input id="customer-name" placeholder="Walk-in Customer" /></div>
+                            <div class="col"><label>Product</label><select id="sale-product"></select></div>
+                            <div class="col"><label>Quantity</label><input id="sale-qty" type="number" value="1" /></div>
+                            <div class="col" style="display:flex; align-items:flex-end;"><button class="btn btn-success" onclick="addToCart()">➕ Add to Cart</button></div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>🛒 Cart</h3>
+                            <button class="btn btn-excel" onclick="exportSales()">📥 Export My Sales to Excel</button>
+                        </div>
+                        <table><thead><tr><th>Product</th><th>Qty</th><th>Unit Price (GH₵)</th><th>Total (GH₵)</th><th></th></tr></thead><tbody id="cart-body"></tbody></table>
+                        <button class="btn" style="margin-top:15px;" onclick="completeSale()">✅ Complete Sale & Print Receipt</button>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>📜 Sales History</h3>
+                            <span id="sales-filter-info" style="font-size:13px; color:gray;"></span>
+                        </div>
+                        <table><thead><tr><th>Invoice</th><th>Customer</th><th>Total (GH₵)</th><th>Date</th><th>Rep</th></tr></thead><tbody id="sales-history-body"></tbody></table>
+                    </div>
+                </div>
+
+                <!-- ============ PRICE INPUTS (Cost) TAB ============ -->
+                <div id="tab-pricing" class="tab-content">
+                    <h2>💰 Cost Price Inputs (Procurement)</h2>
+                    <div class="card">
+                        <div class="row">
+                            <div class="col"><label>Product</label><select id="pi-product"></select></div>
+                            <div class="col"><label>New Cost Price (GH₵)</label><input id="pi-cost" type="number" /></div>
+                            <div class="col"><label>Notes</label><input id="pi-notes" placeholder="Supplier / Batch" /></div>
+                            <div class="col" style="display:flex; align-items:flex-end;"><button class="btn btn-warning" onclick="saveCostPrice()">💾 Record Cost</button></div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header"><h3>📋 Cost History</h3><button class="btn btn-excel" onclick="exportCosts()">📥 Export to Excel</button></div>
+                        <table><thead><tr><th>Product</th><th>Cost Price (GH₵)</th><th>Date</th><th>Notes</th></tr></thead><tbody id="cost-history-body"></tbody></table>
+                    </div>
+                </div>
+
+                <!-- ============ ADJUSTMENTS (Selling) TAB ============ -->
+                <div id="tab-adjustments" class="tab-content">
+                    <h2>📊 Selling Price Adjustments</h2>
+                    <div class="card">
+                        <div class="row">
+                            <div class="col"><label>Product</label><select id="adj-product"></select></div>
+                            <div class="col"><label>New Selling Price (GH₵)</label><input id="adj-price" type="number" /></div>
+                            <div class="col"><label>Reason</label><input id="adj-reason" placeholder="e.g., Market shift" /></div>
+                            <div class="col" style="display:flex; align-items:flex-end;"><button class="btn btn-danger" onclick="saveAdjustment()">📈 Adjust Price</button></div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header"><h3>📋 Adjustment History</h3><button class="btn btn-excel" onclick="exportAdjustments()">📥 Export to Excel</button></div>
+                        <table><thead><tr><th>Product</th><th>Old Price (GH₵)</th><th>New Price (GH₵)</th><th>Reason</th><th>Date</th></tr></thead><tbody id="adj-history-body"></tbody></table>
+                    </div>
+                </div>
+
+                <!-- ============ USERS TAB (Admin only) ============ -->
+                <div id="tab-users" class="tab-content">
+                    <h2>👥 User Management <span class="badge">Admin Only</span></h2>
+                    <div class="card">
+                        <div class="row">
+                            <div class="col"><label>Full Name</label><input id="new-user-name" placeholder="John Doe" /></div>
+                            <div class="col"><label>Username</label><input id="new-user-username" placeholder="john" /></div>
+                            <div class="col"><label>Password</label><input id="new-user-password" type="text" placeholder="password" /></div>
+                            <div class="col" style="display:flex; align-items:flex-end;"><button class="btn btn-success" onclick="createUser()">➕ Create Rep</button></div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <h3>📋 Registered Users</h3>
+                        <table><thead><tr><th>Username</th><th>Full Name</th><th>Role</th><th>Created</th><th>Action</th></tr></thead><tbody id="users-table-body"></tbody></table>
+                    </div>
+                </div>
+
+                <!-- ============ STOCK HANDLE TAB ============ -->
+                <div id="tab-stock" class="tab-content">
+                    <h2>📈 Stock Handle & Movements</h2>
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>📊 Stock Summary</h3>
+                            <button class="btn btn-excel" onclick="exportStockMovements()">📥 Export Movements to Excel</button>
+                        </div>
+                        <p><strong>Total Stock Value:</strong> <span id="total-stock-value">GH₵ 0.00</span></p>
+                        <table><thead><tr><th>Date</th><th>Product</th><th>Type</th><th>Qty Change</th><th>New Qty</th><th>User</th></tr></thead><tbody id="stock-movements-body"></tbody></table>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== RECEIPT MODAL ==================== -->
+    <div id="receipt-modal">
+        <div class="receipt-box">
+            <div class="receipt-content" id="receipt-content">
+                <!-- Dynamically filled -->
+            </div>
+            <div class="receipt-actions">
+                <button class="btn btn-print" onclick="printReceipt()">🖨️ Print Receipt</button>
+                <button class="btn" onclick="closeReceipt()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ================================================================
+        //  DATA LAYER
+        // ================================================================
+        function getData(key, defaultVal) {
+            const raw = localStorage.getItem(key);
+            return raw ? JSON.parse(raw) : defaultVal;
+        }
+
+        function setData(key, val) {
+            localStorage.setItem(key, JSON.stringify(val));
+        }
+
+        // ---------- USERS ----------
+        let users = getData('onks_users', []);
+        if (users.length === 0) {
+            users.push({ username: 'admin', password: 'password', fullName: 'System Admin', role: 'admin', created: new Date()
+                    .toLocaleString() });
+            setData('onks_users', users);
+        }
+        let currentUser = null;
+
+        // ---------- PRODUCTS ----------
+        let products = getData('onks_products', [
+            { id: 1, name: 'Aluminium Sheet', unit: 'Kg', sellPrice: 1500, stock: 200 },
+            { id: 2, name: 'Aluminium Coil', unit: 'Kg', sellPrice: 1700, stock: 150 },
+            { id: 3, name: 'Aluminium Profile', unit: 'Pcs', sellPrice: 2200, stock: 80 },
+            { id: 4, name: 'Aluminium Foil', unit: 'Roll', sellPrice: 900, stock: 300 },
+            { id: 5, name: 'Aluminium Tubes', unit: 'Pcs', sellPrice: 1800, stock: 120 }
+        ]);
+        let nextProductId = products.length > 0 ? Math.max(...products.map(p => p.id)) + 1 : 1;
+
+        // ---------- SALES ----------
+        let sales = getData('onks_sales', []);
+        let cart = [];
+
+        // ---------- COSTS & ADJUSTMENTS ----------
+        let costHistory = getData('onks_cost_history', []);
+        let adjHistory = getData('onks_adj_history', []);
+
+        // ---------- STOCK MOVEMENTS ----------
+        let stockMovements = getData('onks_stock_movements', []);
+
+        // ================================================================
+        //  AUTHENTICATION
+        // ================================================================
+        function loginUser() {
+            const username = document.getElementById('login-username').value.trim();
+            const password = document.getElementById('login-password').value.trim();
+            const user = users.find(u => u.username === username && u.password === password);
+            if (!user) {
+                document.getElementById('login-error').textContent = '❌ Invalid username or password.';
+                return;
+            }
+            currentUser = user;
+            document.getElementById('login-overlay').classList.add('hidden');
+            document.getElementById('app-container').classList.remove('hidden');
+            initApp();
+        }
+
+        function logoutUser() {
+            currentUser = null;
+            document.getElementById('app-container').classList.add('hidden');
+            document.getElementById('login-overlay').classList.remove('hidden');
+            document.getElementById('login-username').value = 'admin';
+            document.getElementById('login-password').value = 'password';
+            document.getElementById('login-error').textContent = '';
+        }
+
+        // Allow Enter key on login
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !document.getElementById('login-overlay').classList.contains('hidden')) {
+                loginUser();
+            }
+        });
+
+        // ================================================================
+        //  INIT APP
+        // ================================================================
+        function initApp() {
+            document.getElementById('display-name').textContent = currentUser.fullName;
+            document.getElementById('display-role').textContent = currentUser.role === 'admin' ? '👑 Administrator' :
+            '🛒 Sales Rep';
+
+            // Show Users tab only for admin
+            document.getElementById('users-tab-btn').style.display = currentUser.role === 'admin' ? 'block' : 'none';
+
+            // Refresh all data
+            renderInventory();
+            refreshAllDropdowns();
+            renderCart();
+            renderSalesHistory();
+            renderCostHistory();
+            renderAdjustments();
+            renderUsersTable();
+            renderStockAlerts();
+            renderStockMovements();
+            updateStockValue();
+
+            // Set default customer
+            document.getElementById('customer-name').value = 'Walk-in Customer';
+            // Switch to inventory tab by default
+            switchTab('inventory');
+        }
+
+        // ================================================================
+        //  NAVIGATION
+        // ================================================================
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.sidebar button').forEach(el => el.classList.remove('active'));
+            document.getElementById('tab-' + tab).classList.add('active');
+            document.querySelectorAll('.sidebar button').forEach(btn => {
+                if (btn.textContent.includes('Inventory') && tab === 'inventory') btn.classList.add('active');
+                if (btn.textContent.includes('Sales') && tab === 'sales') btn.classList.add('active');
+                if (btn.textContent.includes('Price Inputs') && tab === 'pricing') btn.classList.add('active');
+                if (btn.textContent.includes('Adjustments') && tab === 'adjustments') btn.classList.add('active');
+                if (btn.textContent.includes('Users') && tab === 'users') btn.classList.add('active');
+                if (btn.textContent.includes('Stock Handle') && tab === 'stock') btn.classList.add('active');
+            });
+            if (tab === 'inventory') { renderInventory();
+                renderStockAlerts(); }
+            if (tab === 'sales') { refreshAllDropdowns();
+                renderCart();
+                renderSalesHistory(); }
+            if (tab === 'pricing') { refreshAllDropdowns();
+                renderCostHistory(); }
+            if (tab === 'adjustments') { refreshAllDropdowns();
+                renderAdjustments(); }
+            if (tab === 'users') renderUsersTable();
+            if (tab === 'stock') { renderStockMovements();
+                updateStockValue(); }
+        }
+
+        // ================================================================
+        //  EXPORT FUNCTIONS (Excel CSV)
+        // ================================================================
+        function downloadCSV(data, headers, filename) {
+            if (data.length === 0) return alert('No data to export.');
+            let csv = headers.join(',') + '\n';
+            data.forEach(row => {
+                const escaped = row.map(val => `"${val}"`);
+                csv += escaped.join(',') + '\n';
+            });
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = filename + '.csv';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function exportInventory() {
+            const headers = ['ID', 'Product', 'Unit', 'Sell Price (GH₵)', 'Stock'];
+            const data = products.map(p => [p.id, p.name, p.unit, p.sellPrice, p.stock]);
+            downloadCSV(data, headers, 'ONKS_Inventory');
+        }
+
+        function exportSales() {
+            let filteredSales = sales;
+            if (currentUser.role === 'rep') {
+                filteredSales = sales.filter(s => s.createdBy === currentUser.username);
+            }
+            if (filteredSales.length === 0) return alert('No sales to export for your account.');
+            const headers = ['Invoice', 'Customer', 'Total (GH₵)', 'Date', 'Rep', 'Items'];
+            const data = filteredSales.map(s => [s.invoice, s.customer, s.total, s.date, s.createdBy || 'admin', s.items ||
+                ''
+            ]);
+            downloadCSV(data, headers, 'ONKS_Sales_Export');
+        }
+
+        function exportCosts() {
+            if (costHistory.length === 0) return alert('No cost history.');
+            const headers = ['Product', 'Cost Price (GH₵)', 'Date', 'Notes'];
+            const data = costHistory.map(c => [c.productName, c.cost, c.date, c.notes]);
+            downloadCSV(data, headers, 'ONKS_Cost_History');
+        }
+
+        function exportAdjustments() {
+            if (adjHistory.length === 0) return alert('No adjustments.');
+            const headers = ['Product', 'Old Price (GH₵)', 'New Price (GH₵)', 'Reason', 'Date'];
+            const data = adjHistory.map(a => [a.productName, a.oldPrice, a.newPrice, a.reason, a.date]);
+            downloadCSV(data, headers, 'ONKS_Price_Adjustments');
+        }
+
+        function exportStockMovements() {
+            if (stockMovements.length === 0) return alert('No stock movements.');
+            const headers = ['Date', 'Product', 'Type', 'Qty Change', 'New Qty', 'User'];
+            const data = stockMovements.map(m => [m.date, m.product, m.type, m.change, m.newQty, m.user]);
+            downloadCSV(data, headers, 'ONKS_Stock_Movements');
+        }
+
+        // ================================================================
+        //  INVENTORY
+        // ================================================================
+        function saveProducts() {
+            setData('onks_products', products);
+            renderInventory();
+            refreshAllDropdowns();
+            renderStockAlerts();
+            updateStockValue();
+        }
+
+        function addProduct() {
+            const name = document.getElementById('new-prod-name').value.trim();
+            const price = parseFloat(document.getElementById('new-prod-price').value);
+            if (!name || !price) return alert('Enter product name and price.');
+            products.push({ id: nextProductId++, name, unit: 'Kg', sellPrice: price, stock: 0 });
+            // Log stock movement
+            stockMovements.push({
+                date: new Date().toLocaleString(),
+                product: name,
+                type: 'ADDED (New Product)',
+                change: 0,
+                newQty: 0,
+                user: currentUser.fullName
+            });
+            setData('onks_stock_movements', stockMovements);
+            saveProducts();
+            document.getElementById('new-prod-name').value = '';
+            document.getElementById('new-prod-price').value = '';
+            alert('Product added!');
+        }
+
+        function deleteProduct(id) {
+            if (!confirm('Delete this product?')) return;
+            const p = products.find(x => x.id === id);
+            products = products.filter(p => p.id !== id);
+            saveProducts();
+            stockMovements.push({
+                date: new Date().toLocaleString(),
+                product: p ? p.name : 'Unknown',
+                type: 'DELETED',
+                change: 0,
+                newQty: 0,
+                user: currentUser.fullName
+            });
+            setData('onks_stock_movements', stockMovements);
+        }
+
+        function renderInventory() {
+            const tbody = document.getElementById('inventory-body');
+            tbody.innerHTML = '';
+            products.forEach(p => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><strong>${p.name}</strong></td>
+                    <td>${p.unit}</td>
+                    <td>GH₵ ${p.sellPrice.toFixed(2)}</td>
+                    <td>
+                        <input type="number" class="inline-edit" value="${p.stock}" 
+                               onchange="updateStock(${p.id}, this.value)" />
+                    </td>
+                    <td><button class="delete-btn" onclick="deleteProduct(${p.id})">🗑️</button></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function updateStock(productId, newVal) {
+            const qty = parseFloat(newVal);
+            if (isNaN(qty) || qty < 0) return alert('Enter a valid number.');
+            const product = products.find(p => p.id === productId);
+            if (product) {
+                const oldQty = product.stock;
+                product.stock = qty;
+                // Log movement
+                stockMovements.push({
+                    date: new Date().toLocaleString(),
+                    product: product.name,
+                    type: oldQty < qty ? 'STOCK INCREASE' : 'STOCK DECREASE (Manual)',
+                    change: qty - oldQty,
+                    newQty: qty,
+                    user: currentUser.fullName
+                });
+                setData('onks_stock_movements', stockMovements);
+                saveProducts();
+                const input = event.target;
+                input.style.background = '#d4edda';
+                setTimeout(() => input.style.background = '#fff9e6', 400);
+            }
+        }
+
+        function renderStockAlerts() {
+            const tbody = document.getElementById('stock-alerts-body');
+            tbody.innerHTML = '';
+            const low = products.filter(p => p.stock < 10);
+            if (low.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="3">✅ All products have sufficient stock.</td></tr>';
+                return;
+            }
+            low.forEach(p => {
+                tbody.innerHTML += `<tr><td>${p.name}</td><td class="stock-low">${p.stock}</td><td>⚠️ Reorder needed</td></tr>`;
+            });
+        }
+
+        function updateStockValue() {
+            const total = products.reduce((sum, p) => sum + (p.stock * p.sellPrice), 0);
+            document.getElementById('total-stock-value').textContent = `GH₵ ${total.toFixed(2)}`;
+        }
+
+        function renderStockMovements() {
+            const tbody = document.getElementById('stock-movements-body');
+            tbody.innerHTML = '';
+            if (stockMovements.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6">No movements logged yet.</td></tr>';
+                return;
+            }
+            const latest = stockMovements.slice(-30).reverse();
+            latest.forEach(m => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${m.date}</td>
+                        <td>${m.product}</td>
+                        <td>${m.type}</td>
+                        <td>${m.change}</td>
+                        <td>${m.newQty}</td>
+                        <td>${m.user}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        // ================================================================
+        //  SALES
+        // ================================================================
+        function refreshAllDropdowns() {
+            const ids = ['sale-product', 'pi-product', 'adj-product'];
+            ids.forEach(id => {
+                const sel = document.getElementById(id);
+                if (!sel) return;
+                const currentVal = sel.value;
+                sel.innerHTML = '<option value="">-- Select --</option>';
+                products.forEach(p => {
+                    const opt = document.createElement('option');
+                    opt.value = p.id;
+                    opt.textContent = `${p.name} (Stock: ${p.stock})`;
+                    sel.appendChild(opt);
+                });
+                if (currentVal) sel.value = currentVal;
+            });
+        }
+
+        function addToCart() {
+            const pid = parseInt(document.getElementById('sale-product').value);
+            const qty = parseFloat(document.getElementById('sale-qty').value);
+            if (!pid || qty <= 0) return alert('Select product and valid quantity.');
+            const product = products.find(p => p.id === pid);
+            if (!product) return alert('Product not found.');
+            if (qty > product.stock) return alert(`Only ${product.stock} left in stock.`);
+            const existing = cart.find(item => item.productId === pid);
+            if (existing) {
+                if (existing.qty + qty > product.stock) return alert(`Not enough stock. You already have ${existing.qty} in cart.`);
+                existing.qty += qty;
+            } else {
+                cart.push({ productId: pid, name: product.name, qty: qty, price: product.sellPrice });
+            }
+            renderCart();
+            document.getElementById('sale-qty').value = 1;
+        }
+
+        function removeFromCart(index) {
+            cart.splice(index, 1);
+            renderCart();
+        }
+
+        function renderCart() {
+            const tbody = document.getElementById('cart-body');
+            tbody.innerHTML = '';
+            if (cart.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5">Cart is empty</td></tr>';
+                return;
+            }
+            let grandTotal = 0;
+            cart.forEach((item, idx) => {
+                const lineTotal = item.qty * item.price;
+                grandTotal += lineTotal;
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${item.name}</td>
+                        <td>${item.qty}</td>
+                        <td>GH₵ ${item.price.toFixed(2)}</td>
+                        <td>GH₵ ${lineTotal.toFixed(2)}</td>
+                        <td><button class="delete-btn" onclick="removeFromCart(${idx})">❌</button></td>
+                    </tr>
+                `;
+            });
+            tbody.innerHTML += `<tr class="total-row"><td colspan="3">GRAND TOTAL</td><td colspan="2">GH₵ ${grandTotal.toFixed(2)}</td></tr>`;
+        }
+
+        function completeSale() {
+            if (cart.length === 0) return alert('Cart is empty.');
+            const customer = document.getElementById('customer-name').value.trim() || 'Walk-in Customer';
+            const invoice = 'INV-' + Date.now();
+            const date = new Date().toLocaleString();
+            let total = 0;
+
+            cart.forEach(item => {
+                const product = products.find(p => p.id === item.productId);
+                if (product) {
+                    product.stock -= item.qty;
+                    total += item.qty * item.price;
+                    // Log stock movement
+                    stockMovements.push({
+                        date: date,
+                        product: product.name,
+                        type: 'SOLD',
+                        change: -item.qty,
+                        newQty: product.stock,
+                        user: currentUser.fullName
+                    });
+                }
+            });
+
+            const itemsSummary = cart.map(i => `${i.name} x${i.qty}`).join(', ');
+            sales.push({
+                invoice,
+                customer,
+                total,
+                date,
+                items: itemsSummary,
+                createdBy: currentUser.username
+            });
+            setData('onks_sales', sales);
+            setData('onks_stock_movements', stockMovements);
+            saveProducts();
+
+            // Show Receipt
+            showReceipt(invoice, customer, cart, total);
+
+            cart = [];
+            renderCart();
+            renderSalesHistory();
+            renderStockMovements();
+            updateStockValue();
+            document.getElementById('customer-name').value = 'Walk-in Customer';
+        }
+
+        // ================================================================
+        //  RECEIPT
+        // ================================================================
+        let lastReceiptInvoice = '';
+
+        function showReceipt(invoice, customer, items, total) {
+            lastReceiptInvoice = invoice;
+            let itemsHtml = '';
+            items.forEach(item => {
+                itemsHtml += `
+                    <div class="item-row">
+                        <span>${item.name} x ${item.qty}</span>
+                        <span>GH₵ ${(item.qty * item.price).toFixed(2)}</span>
+                    </div>
+                `;
+            });
+            const html = `
+                <h2>⚙️ ONKS VENTURES</h2>
+                <div class="sub">Aluminium Trading Co.<br>123 Accra Road, Ghana<br>Tel: 024-XXX-XXXX</div>
+                <div style="display:flex; justify-content:space-between; font-size:12px; border-bottom:1px dashed #aaa; padding-bottom:5px; margin-bottom:5px;">
+                    <span><strong>Invoice:</strong> ${invoice}</span>
+                    <span><strong>Date:</strong> ${new Date().toLocaleString()}</span>
+                </div>
+                <div style="font-size:12px; margin-bottom:8px;"><strong>Customer:</strong> ${customer}</div>
+                <div style="font-size:12px; margin-bottom:8px;"><strong>Cashier:</strong> ${currentUser.fullName}</div>
+                <div style="border-top:1px dashed #aaa; padding-top:5px; margin-top:5px;">
+                    ${itemsHtml}
+                </div>
+                <div class="total-line">TOTAL: GH₵ ${total.toFixed(2)}</div>
+                <div style="display:flex; justify-content:space-between; font-size:12px; margin-top:5px;">
+                    <span>Items: ${items.length}</span>
+                    <span>Thank you!</span>
+                </div>
+                <div class="footer">🚀 Developed by SOMEFOST SOLUTIONS LIMITED</div>
+            `;
+            document.getElementById('receipt-content').innerHTML = html;
+            document.getElementById('receipt-modal').classList.add('show');
+        }
+
+        function printReceipt() {
+            window.print();
+        }
+
+        function closeReceipt() {
+            document.getElementById('receipt-modal').classList.remove('show');
+        }
+
+        // ================================================================
+        //  SALES HISTORY
+        // ================================================================
+        function renderSalesHistory() {
+            const tbody = document.getElementById('sales-history-body');
+            tbody.innerHTML = '';
+            let filtered = sales;
+            let infoText = 'Showing all transactions (Admin)';
+            if (currentUser.role === 'rep') {
+                filtered = sales.filter(s => s.createdBy === currentUser.username);
+                infoText = 'Showing your sales only (Rep)';
+            }
+            document.getElementById('sales-filter-info').textContent = infoText;
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5">No sales recorded.</td></tr>';
+                return;
+            }
+            const latest = filtered.slice(-30).reverse();
+            latest.forEach(s => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td><strong>${s.invoice}</strong></td>
+                        <td>${s.customer}</td>
+                        <td>GH₵ ${s.total.toFixed(2)}</td>
+                        <td>${s.date}</td>
+                        <td>${s.createdBy || 'admin'}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        // ================================================================
+        //  COST PRICE INPUTS
+        // ================================================================
+        function saveCostPrice() {
+            const pid = parseInt(document.getElementById('pi-product').value);
+            const cost = parseFloat(document.getElementById('pi-cost').value);
+            const notes = document.getElementById('pi-notes').value.trim();
+            if (!pid || !cost) return alert('Select product and enter cost.');
+            const product = products.find(p => p.id === pid);
+            costHistory.push({
+                productName: product ? product.name : 'Unknown',
+                cost: cost,
+                date: new Date().toLocaleString(),
+                notes: notes || '-'
+            });
+            setData('onks_cost_history', costHistory);
+            renderCostHistory();
+            document.getElementById('pi-cost').value = '';
+            document.getElementById('pi-notes').value = '';
+            alert('Cost price recorded!');
+        }
+
+        function renderCostHistory() {
+            const tbody = document.getElementById('cost-history-body');
+            tbody.innerHTML = '';
+            if (costHistory.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4">No cost inputs yet.</td></tr>';
+                return;
+            }
+            const latest = costHistory.slice(-20).reverse();
+            latest.forEach(item => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${item.productName}</td>
+                        <td>GH₵ ${item.cost.toFixed(2)}</td>
+                        <td>${item.date}</td>
+                        <td>${item.notes}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        // ================================================================
+        //  PRICE ADJUSTMENTS (Selling)
+        // ================================================================
+        function saveAdjustment() {
+            const pid = parseInt(document.getElementById('adj-product').value);
+            const newPrice = parseFloat(document.getElementById('adj-price').value);
+            const reason = document.getElementById('adj-reason').value.trim();
+            if (!pid || !newPrice) return alert('Select product and enter new price.');
+            const product = products.find(p => p.id === pid);
+            if (!product) return alert('Product not found.');
+            const oldPrice = product.sellPrice;
+
+            adjHistory.push({
+                productName: product.name,
+                oldPrice: oldPrice,
+                newPrice: newPrice,
+                reason: reason || 'Manual adjustment',
+                date: new Date().toLocaleString()
+            });
+            setData('onks_adj_history', adjHistory);
+
+            product.sellPrice = newPrice;
+            saveProducts();
+
+            renderAdjustments();
+            document.getElementById('adj-price').value = '';
+            document.getElementById('adj-reason').value = '';
+            alert(`✅ Price updated from GH₵ ${oldPrice.toFixed(2)} to GH₵ ${newPrice.toFixed(2)}`);
+        }
+
+        function renderAdjustments() {
+            const tbody = document.getElementById('adj-history-body');
+            tbody.innerHTML = '';
+            if (adjHistory.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5">No adjustments yet.</td></tr>';
+                return;
+            }
+            const latest = adjHistory.slice(-20).reverse();
+            latest.forEach(item => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${item.productName}</td>
+                        <td>GH₵ ${item.oldPrice.toFixed(2)}</td>
+                        <td>GH₵ ${item.newPrice.toFixed(2)}</td>
+                        <td>${item.reason}</td>
+                        <td>${item.date}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        // ================================================================
+        //  USER MANAGEMENT (Admin Only)
+        // ================================================================
+        function createUser() {
+            if (currentUser.role !== 'admin') return alert('Only Admin can create users.');
+            const fullName = document.getElementById('new-user-name').value.trim();
+            const username = document.getElementById('new-user-username').value.trim();
+            const password = document.getElementById('new-user-password').value.trim();
+            if (!fullName || !username || !password) return alert('Fill all fields.');
+            if (users.find(u => u.username === username)) return alert('Username already exists.');
+            users.push({ username, password, fullName, role: 'rep', created: new Date().toLocaleString() });
+            setData('onks_users', users);
+            renderUsersTable();
+            document.getElementById('new-user-name').value = '';
+            document.getElementById('new-user-username').value = '';
+            document.getElementById('new-user-password').value = '';
+            alert(`✅ Rep "${fullName}" created successfully!`);
+        }
+
+        function deleteUser(username) {
+            if (currentUser.role !== 'admin') return;
+            if (username === 'admin') return alert('Cannot delete the main admin.');
+            if (!confirm(`Delete user "${username}"?`)) return;
+            users = users.filter(u => u.username !== username);
+            setData('onks_users', users);
+            renderUsersTable();
+        }
+
+        function renderUsersTable() {
+            const tbody = document.getElementById('users-table-body');
+            tbody.innerHTML = '';
+            users.forEach(u => {
+                const isAdmin = u.role === 'admin';
+                tbody.innerHTML += `
+                    <tr>
+                        <td><strong>${u.username}</strong></td>
+                        <td>${u.fullName}</td>
+                        <td>${isAdmin ? '👑 Admin' : '🛒 Rep'}</td>
+                        <td>${u.created || '-'}</td>
+                        <td>${!isAdmin ? `<button class="delete-btn" onclick="deleteUser('${u.username}')">🗑️</button>` : '-'}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        // ================================================================
+        //  AUTO-LOGIN CHECK
+        // ================================================================
+        window.onload = function() {
+            // If there's a saved session? For simplicity, show login.
+            document.getElementById('login-overlay').classList.remove('hidden');
+            document.getElementById('app-container').classList.add('hidden');
+        };
+    </script>
+
+</body>
+</html>
